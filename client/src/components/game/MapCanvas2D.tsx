@@ -2,8 +2,8 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useMap } from '../../lib/stores/useMap';
 import { useGameState } from '../../lib/stores/useGameState';
 
-const TILE_SIZE = 50; // Smaller for mobile optimization
-const MAP_SIZE = 10; // 10x10 grid
+const TILE_SIZE = 80; // Larger for better mobile visibility
+const MAP_SIZE = 20; // 20x20 grid (expanded from 10x10)
 
 // Convert grid coordinates to world position
 const gridToWorld = (x: number, y: number): [number, number] => {
@@ -73,10 +73,16 @@ export const MapCanvas2D: React.FC = () => {
       // Center the camera on the map
       const mapWidth = MAP_SIZE * TILE_SIZE;
       const mapHeight = MAP_SIZE * TILE_SIZE;
+      
+      // Calculate zoom - use higher minimum zoom for mobile visibility
+      const fitZoom = Math.min(canvas.width / mapWidth, canvas.height / mapHeight);
+      const isMobile = canvas.width < 768;
+      const zoomMultiplier = isMobile ? 1.5 : 0.8; // Zoom in more on mobile
+      
       setCamera({
         x: (canvas.width - mapWidth) / 2,
         y: (canvas.height - mapHeight) / 2,
-        zoom: Math.min(canvas.width / mapWidth, canvas.height / mapHeight) * 0.8
+        zoom: fitZoom * zoomMultiplier
       });
     };
     

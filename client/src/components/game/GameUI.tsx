@@ -21,7 +21,7 @@ interface GameUIProps {
 }
 
 export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
-  const { energy, energyPerSecond, bioMatter, minerals, rareCrystals } = useGameState();
+  const { energy, energyPerSecond, bioMatter, minerals, rareCrystals, addEnergy } = useGameState();
   const { isMuted, toggleMute } = useAudio();
   const { unlockedIds } = useAchievements();
   const { getTotalProduction } = useUnlocks();
@@ -29,6 +29,8 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
   const [showBioMatterPanel, setShowBioMatterPanel] = useState(false);
   const [showTerritoryPanel, setShowTerritoryPanel] = useState(false);
+  const [showCodeInput, setShowCodeInput] = useState(false);
+  const [codeValue, setCodeValue] = useState('');
   
   const structureProduction = getTotalProduction();
   const totalPerSecond = energyPerSecond + structureProduction;
@@ -78,6 +80,16 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
     return Math.floor(num).toString();
   };
 
+  const handleCodeSubmit = () => {
+    if (codeValue === '123') {
+      addEnergy(5000);
+      setCodeValue('');
+      setShowCodeInput(false);
+    } else {
+      setCodeValue('');
+    }
+  };
+
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
       {/* Top UI Bar */}
@@ -96,6 +108,14 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
                   +{formatNumber(totalPerSecond)}/s
                 </div>
               )}
+              <Button
+                onClick={() => setShowCodeInput(true)}
+                variant="ghost"
+                size="sm"
+                className="text-cyan-400 hover:text-cyan-300 mt-1 h-5 px-2 text-[9px]"
+              >
+                +
+              </Button>
             </div>
           </Card>
 
@@ -105,10 +125,10 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
               onClick={() => setShowBioMatterPanel(!showBioMatterPanel)}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-green-400 pointer-events-auto h-8 w-8 md:h-10 md:w-10 p-0 flex-shrink-0"
+              className="text-white hover:text-green-400 pointer-events-auto h-10 w-10 p-0 flex-shrink-0"
               title="BioMatter Synthesis"
             >
-              <Leaf size={16} className="md:w-5 md:h-5" />
+              <Leaf size={24} className="md:w-6 md:h-6" />
             </Button>
             <Button
               onClick={() => setShowTerritoryPanel(!showTerritoryPanel)}
@@ -184,6 +204,42 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
 
       {/* Update 2 Ending Modal */}
       <Update2EndingModal />
+
+      {/* Code Input Dialog */}
+      {showCodeInput && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto z-20">
+          <Card className="bg-slate-900/95 border-cyan-500/50 p-4 min-w-[280px]">
+            <h3 className="text-cyan-400 font-bold mb-3 text-center">Enter Code</h3>
+            <input
+              type="text"
+              value={codeValue}
+              onChange={(e) => setCodeValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleCodeSubmit()}
+              className="w-full bg-slate-800 border border-cyan-500/30 text-white px-3 py-2 rounded mb-3 text-center"
+              placeholder="Enter code"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <Button
+                onClick={handleCodeSubmit}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-700"
+              >
+                Submit
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowCodeInput(false);
+                  setCodeValue('');
+                }}
+                variant="ghost"
+                className="flex-1 text-white hover:text-red-400"
+              >
+                Cancel
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {/* Achievement Notifications */}
       {currentAchievement && (
