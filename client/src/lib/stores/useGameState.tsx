@@ -8,6 +8,13 @@ import { usePrestige } from './usePrestige';
 import { useDiscoveryLogs } from './useDiscoveryLogs';
 import { useAudio } from './useAudio';
 
+// Lazy import function to avoid circular dependency
+let _getMapProduction: (() => { energy: number; bioMatter: number }) | null = null;
+export const setMapProductionGetter = (getter: () => { energy: number; bioMatter: number }) => {
+  _getMapProduction = getter;
+};
+const getMapProduction = () => _getMapProduction?.() || { energy: 0, bioMatter: 0 };
+
 interface GameState {
   // Core game state
   energy: number;
@@ -27,6 +34,8 @@ interface GameState {
   initializeGame: (savedData?: any) => void;
   generateEnergy: () => void;
   addEnergy: (amount: number) => void;
+  spendEnergy: (amount: number) => boolean;
+  spendBioMatter: (amount: number) => boolean;
   upgradeClick: () => void;
   upgradeGenerator: () => void;
   setIsGenerating: (generating: boolean) => void;
@@ -108,8 +117,13 @@ export const useGameState = create<GameState>()(
         if (generationInterval) clearInterval(generationInterval);
         generationInterval = setInterval(() => {
           const state = get();
+          
+          // Get production from all sources
           const structureProduction = useUnlocks.getState().getTotalProduction();
-          const basePerSecond = state.energyPerSecond + structureProduction;
+          const mapProduction = getMapProduction();
+          
+          // Energy production
+          const basePerSecond = state.energyPerSecond + structureProduction + mapProduction.energy;
           const productionPrestigeMultiplier = usePrestige.getState().productionMultiplier;
           const totalPerSecond = basePerSecond * productionPrestigeMultiplier;
           
@@ -117,9 +131,10 @@ export const useGameState = create<GameState>()(
             set({ energy: state.energy + totalPerSecond });
           }
           
-          // Generate BioMatter from Terraformers
-          if (state.bioMatterPerSecond > 0) {
-            const newBioMatter = state.bioMatter + state.bioMatterPerSecond;
+          // BioMatter production from Terraformers and Map structures
+          const totalBioMatterPerSecond = state.bioMatterPerSecond + mapProduction.bioMatter;
+          if (totalBioMatterPerSecond > 0) {
+            const newBioMatter = state.bioMatter + totalBioMatterPerSecond;
             set({ bioMatter: newBioMatter });
             
             // Check for discovery logs
@@ -157,6 +172,24 @@ export const useGameState = create<GameState>()(
         
         // Check achievements
         useAchievements.getState().checkAchievements(get());
+      },
+
+      spendEnergy: (amount) => {
+        const state = get();
+        if (state.energy >= amount && amount >= 0) {
+          set({ energy: state.energy - amount });
+          return true;
+        }
+        return false;
+      },
+
+      spendBioMatter: (amount) => {
+        const state = get();
+        if (state.bioMatter >= amount && amount >= 0) {
+          set({ bioMatter: state.bioMatter - amount });
+          return true;
+        }
+        return false;
       },
 
       upgradeClick: () => {
