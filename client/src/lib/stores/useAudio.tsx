@@ -23,7 +23,7 @@ export const useAudio = create<AudioState>((set, get) => ({
   backgroundMusic: null,
   hitSound: null,
   successSound: null,
-  isMuted: true, // Start muted by default
+  isMuted: false, // Start unmuted by default
   currentLifeStage: 0,
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
@@ -34,19 +34,22 @@ export const useAudio = create<AudioState>((set, get) => ({
     const { isMuted, backgroundMusic } = get();
     const newMutedState = !isMuted;
     
-    // Update the muted state
-    set({ isMuted: newMutedState });
-    
     // Control background music
     if (backgroundMusic) {
       if (newMutedState) {
         backgroundMusic.pause();
       } else {
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0.5;
         backgroundMusic.play().catch(error => {
           console.log("Background music play prevented:", error);
         });
       }
     }
+    
+    // Update the muted state after controlling music
+    set({ isMuted: newMutedState });
     
     // Log the change
     console.log(`Sound ${newMutedState ? 'muted' : 'unmuted'}`);
