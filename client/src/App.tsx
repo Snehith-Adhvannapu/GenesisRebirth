@@ -2,17 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { GameCanvas } from './components/game/GameCanvas';
 import { GameUI } from './components/game/GameUI';
 import { StoryModal } from './components/game/StoryModal';
+import { StoryChapterModal } from './components/game/StoryChapterModal';
 import { OfflineModal } from './components/game/OfflineModal';
 import { useGameState } from './lib/stores/useGameState';
 import { useAudio } from './lib/stores/useAudio';
+import { useStory, StoryChapter } from './lib/stores/useStory';
+import { useUnlocks } from './lib/stores/useUnlocks';
 import { loadGameData, calculateOfflineProgress } from './lib/saveSystem';
 import "@fontsource/inter";
 
 function App() {
-  const { initializeGame, gameStarted, addEnergy } = useGameState();
+  const { initializeGame, gameStarted, addEnergy, energy } = useGameState();
   const [showStory, setShowStory] = useState(false);
   const [offlineEarnings, setOfflineEarnings] = useState<{ energy: number; hours: number } | null>(null);
+  const [currentStoryChapter, setCurrentStoryChapter] = useState<StoryChapter | null>(null);
   const { setHitSound, setSuccessSound, setBackgroundMusic } = useAudio();
+  const { checkUnlocks, markChapterViewed } = useStory();
+  const { civilizationPhase } = useUnlocks();
 
   useEffect(() => {
     // Initialize audio
@@ -44,9 +50,26 @@ function App() {
     }
   }, [initializeGame, setHitSound, setSuccessSound, setBackgroundMusic, addEnergy]);
 
+  // Check for story chapter unlocks
+  useEffect(() => {
+    if (gameStarted && !showStory && !currentStoryChapter && !offlineEarnings) {
+      const newChapter = checkUnlocks(energy, civilizationPhase);
+      if (newChapter) {
+        setCurrentStoryChapter(newChapter);
+      }
+    }
+  }, [energy, civilizationPhase, gameStarted, showStory, currentStoryChapter, offlineEarnings, checkUnlocks]);
+
   const handleStoryComplete = () => {
     setShowStory(false);
     initializeGame();
+  };
+
+  const handleChapterComplete = () => {
+    if (currentStoryChapter) {
+      markChapterViewed(currentStoryChapter.id);
+      setCurrentStoryChapter(null);
+    }
   };
 
   const handleOfflineModalClose = () => {
@@ -73,6 +96,14 @@ function App() {
           energy={offlineEarnings.energy}
           hours={offlineEarnings.hours}
           onClose={handleOfflineModalClose}
+        />
+      )}
+
+      {/* Story Chapter Modal */}
+      {currentStoryChapter && !showStory && !offlineEarnings && (
+        <StoryChapterModal
+          chapter={currentStoryChapter}
+          onComplete={handleChapterComplete}
         />
       )}
     </div>
