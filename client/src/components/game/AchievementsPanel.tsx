@@ -19,11 +19,11 @@ export const AchievementsPanel: React.FC = () => {
         onClick={() => setIsOpen(true)}
         variant="ghost"
         size="sm"
-        className="text-white hover:text-yellow-400 relative"
+        className="text-white hover:text-yellow-400 relative h-8 w-8 md:h-10 md:w-10 p-0"
       >
-        <Trophy size={20} />
+        <Trophy size={16} className="md:w-5 md:h-5" />
         {unlockedCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-yellow-500 text-black text-xs rounded-full w-5 h-5 flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[10px] md:text-xs rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center">
             {unlockedCount}
           </span>
         )}

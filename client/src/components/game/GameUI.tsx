@@ -80,25 +80,26 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
       {/* Top UI Bar */}
-      <div className="absolute top-0 left-0 right-0 p-2 md:p-4 pointer-events-auto z-10">
-        <div className="flex justify-between items-start gap-2">
+      <div className="absolute top-0 left-0 right-0 p-1 md:p-4 pointer-events-auto z-10">
+        <div className="flex justify-between items-start gap-1">
           {/* Energy Display */}
-          <Card className="bg-black/90 border-cyan-500/30 text-white p-2 md:p-4 flex-shrink-0">
+          <Card className="bg-black/90 border-cyan-500/30 text-white p-1.5 md:p-4 flex-shrink min-w-[80px]">
             <div className="text-center">
-              <div className="text-xl md:text-3xl font-bold text-cyan-400 mb-0.5 md:mb-1">
+              <div className="text-lg md:text-3xl font-bold text-cyan-400 mb-0 md:mb-1">
                 {formatNumber(energy)}
               </div>
-              <div className="text-[10px] md:text-sm text-cyan-300">Genesis Energy</div>
+              <div className="text-[9px] md:text-sm text-cyan-300 hidden sm:block">Genesis Energy</div>
+              <div className="text-[9px] md:text-sm text-cyan-300 sm:hidden">Energy</div>
               {totalPerSecond > 0 && (
-                <div className="text-[10px] md:text-xs text-green-400 mt-0.5 md:mt-1">
-                  +{formatNumber(totalPerSecond)}/sec
+                <div className="text-[9px] md:text-xs text-green-400 mt-0 md:mt-1">
+                  +{formatNumber(totalPerSecond)}/s
                 </div>
               )}
             </div>
           </Card>
 
           {/* Controls */}
-          <div className="flex space-x-1 md:space-x-2 pointer-events-auto">
+          <div className="flex flex-wrap gap-1 md:gap-2 pointer-events-auto justify-end">
             <Button
               onClick={() => setShowBioMatterPanel(!showBioMatterPanel)}
               variant="ghost"

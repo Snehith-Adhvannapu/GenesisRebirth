@@ -42,11 +42,11 @@ export const StructuresPanel: React.FC = () => {
         onClick={() => setIsOpen(true)}
         variant="ghost"
         size="sm"
-        className="text-white hover:text-green-400 relative"
+        className="text-white hover:text-green-400 relative h-8 w-8 md:h-10 md:w-10 p-0"
       >
-        <Building2 size={20} />
+        <Building2 size={16} className="md:w-5 md:h-5" />
         {totalProduction > 0 && (
-          <span className="absolute -top-1 -right-1 bg-green-500 text-black text-xs rounded-full px-1 min-w-[20px] h-5 flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 bg-green-500 text-black text-[10px] md:text-xs rounded-full px-1 min-w-[16px] md:min-w-[20px] h-4 md:h-5 flex items-center justify-center">
             {formatNumber(totalProduction)}
           </span>
         )}
