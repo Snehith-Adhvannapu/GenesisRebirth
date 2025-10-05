@@ -91,19 +91,20 @@ function App() {
       
       {/* View Toggle Button */}
       {gameStarted && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 pointer-events-auto" style={{ zIndex: 20 }}>
-          <div className="flex gap-2 bg-black/80 border border-cyan-500/30 rounded-lg p-2">
+        <div className="absolute top-2 md:top-4 left-1/2 transform -translate-x-1/2 pointer-events-auto" style={{ zIndex: 20 }}>
+          <div className="flex gap-1 md:gap-2 bg-black/90 border border-cyan-500/30 rounded-lg p-1 md:p-2">
             <Button
               onClick={() => setViewMode('energy')}
               className={`${
                 viewMode === 'energy'
                   ? 'bg-cyan-600 hover:bg-cyan-500 text-white'
                   : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
-              }`}
+              } text-xs md:text-sm px-2 md:px-3 h-7 md:h-9`}
               size="sm"
             >
-              <Zap size={16} className="mr-1" />
-              Energy View
+              <Zap size={14} className="mr-1 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Energy</span>
+              <span className="sm:hidden">⚡</span>
             </Button>
             <Button
               onClick={() => setViewMode('map')}
@@ -111,11 +112,12 @@ function App() {
                 viewMode === 'map'
                   ? 'bg-green-600 hover:bg-green-500 text-white'
                   : 'bg-gray-800 hover:bg-gray-700 text-gray-300'
-              }`}
+              } text-xs md:text-sm px-2 md:px-3 h-7 md:h-9`}
               size="sm"
             >
-              <Map size={16} className="mr-1" />
-              Map View
+              <Map size={14} className="mr-1 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Map</span>
+              <span className="sm:hidden">🗺️</span>
             </Button>
           </div>
         </div>

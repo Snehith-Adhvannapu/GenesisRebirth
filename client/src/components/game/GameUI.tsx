@@ -80,17 +80,17 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
       {/* Top UI Bar */}
-      <div className="absolute top-0 left-0 right-0 p-4 pointer-events-auto z-10">
-        <div className="flex justify-between items-start">
+      <div className="absolute top-0 left-0 right-0 p-2 md:p-4 pointer-events-auto z-10">
+        <div className="flex justify-between items-start gap-2">
           {/* Energy Display */}
-          <Card className="bg-black/80 border-cyan-500/30 text-white p-4">
+          <Card className="bg-black/90 border-cyan-500/30 text-white p-2 md:p-4 flex-shrink-0">
             <div className="text-center">
-              <div className="text-3xl font-bold text-cyan-400 mb-1">
+              <div className="text-xl md:text-3xl font-bold text-cyan-400 mb-0.5 md:mb-1">
                 {formatNumber(energy)}
               </div>
-              <div className="text-sm text-cyan-300">Genesis Energy</div>
+              <div className="text-[10px] md:text-sm text-cyan-300">Genesis Energy</div>
               {totalPerSecond > 0 && (
-                <div className="text-xs text-green-400 mt-1">
+                <div className="text-[10px] md:text-xs text-green-400 mt-0.5 md:mt-1">
                   +{formatNumber(totalPerSecond)}/sec
                 </div>
               )}
@@ -98,15 +98,15 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
           </Card>
 
           {/* Controls */}
-          <div className="flex space-x-2 pointer-events-auto">
+          <div className="flex space-x-1 md:space-x-2 pointer-events-auto">
             <Button
               onClick={() => setShowBioMatterPanel(!showBioMatterPanel)}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-green-400 pointer-events-auto"
+              className="text-white hover:text-green-400 pointer-events-auto h-8 w-8 md:h-10 md:w-10 p-0"
               title="BioMatter Synthesis"
             >
-              <Leaf size={20} />
+              <Leaf size={16} className="md:w-5 md:h-5" />
             </Button>
             <PrestigePanel />
             <StructuresPanel />
@@ -115,9 +115,9 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
               onClick={toggleMute}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-cyan-400 pointer-events-auto"
+              className="text-white hover:text-cyan-400 pointer-events-auto h-8 w-8 md:h-10 md:w-10 p-0"
             >
-              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+              {isMuted ? <VolumeX size={16} className="md:w-5 md:h-5" /> : <Volume2 size={16} className="md:w-5 md:h-5" />}
             </Button>
           </div>
         </div>

@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useMap } from '../../lib/stores/useMap';
 import { useGameState } from '../../lib/stores/useGameState';
 
-const TILE_SIZE = 60;
+const TILE_SIZE = 50; // Smaller for mobile optimization
 const MAP_SIZE = 10; // 10x10 grid
 
 // Convert grid coordinates to world position
@@ -42,6 +42,9 @@ export const MapCanvas2D: React.FC = () => {
   const [camera, setCamera] = useState({ x: 0, y: 0, zoom: 1 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [showTileInfo, setShowTileInfo] = useState(false);
+  const [tileInfoPosition, setTileInfoPosition] = useState({ x: 0, y: 0 });
+  const [tileInfoData, setTileInfoData] = useState<any>(null);
   
   const { tiles, selectedStructure, selectedTile, setSelectedTile, initializeMap, unlockTiles, placeStructure, canAffordStructure, structures } = useMap();
   const { energy, bioMatter, spendEnergy, spendBioMatter } = useGameState();
@@ -245,6 +248,11 @@ export const MapCanvas2D: React.FC = () => {
               }
             }
           }
+        } else if (!selectedStructure) {
+          // Show tile info when no structure is selected
+          setTileInfoData(tile);
+          setTileInfoPosition({ x: e.clientX, y: e.clientY });
+          setShowTileInfo(true);
         } else {
           setSelectedTile(selectedTile === tileKey ? null : tileKey);
         }
@@ -252,6 +260,18 @@ export const MapCanvas2D: React.FC = () => {
     }
   };
   
+  const getTileTypeName = (type: string): string => {
+    switch (type) {
+      case 'barren': return 'Barren Land';
+      case 'water': return 'Water';
+      case 'mountain': return 'Mountain';
+      case 'crater': return 'Crater';
+      case 'green': return 'Green Land';
+      case 'forest': return 'Forest';
+      default: return 'Unknown';
+    }
+  };
+
   return (
     <div ref={containerRef} className="absolute inset-0 w-full h-full">
       <canvas
@@ -263,6 +283,46 @@ export const MapCanvas2D: React.FC = () => {
         onPointerLeave={handlePointerUp}
         onClick={handleClick}
       />
+      
+      {/* Tile Info Popup */}
+      {showTileInfo && tileInfoData && (
+        <div 
+          className="fixed bg-black/95 border-2 border-cyan-500/50 rounded-lg p-3 text-white z-50 pointer-events-auto shadow-2xl"
+          style={{
+            left: Math.min(tileInfoPosition.x, window.innerWidth - 200),
+            top: Math.min(tileInfoPosition.y, window.innerHeight - 150),
+            maxWidth: '200px'
+          }}
+          onClick={() => setShowTileInfo(false)}
+        >
+          <div className="text-sm">
+            <div className="font-bold text-cyan-400 mb-2 flex justify-between items-start">
+              <span>{getTileTypeName(tileInfoData.type)}</span>
+              <button 
+                onClick={() => setShowTileInfo(false)}
+                className="text-gray-400 hover:text-white text-lg leading-none"
+              >
+                ×
+              </button>
+            </div>
+            <div className="text-xs space-y-1">
+              <div className="text-gray-300">
+                Position: ({tileInfoData.q}, {tileInfoData.r})
+              </div>
+              {tileInfoData.structure && structures[tileInfoData.structure as keyof typeof structures] && (
+                <div className="text-green-400 font-semibold">
+                  Structure: {structures[tileInfoData.structure as keyof typeof structures].name}
+                </div>
+              )}
+              {!tileInfoData.structure && (
+                <div className="text-gray-400 italic">
+                  No structure built
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
