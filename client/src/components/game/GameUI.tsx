@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { EnergyOrb } from './EnergyOrb';
 import { UpgradePanel } from './UpgradePanel';
 import { AchievementsPanel } from './AchievementsPanel';
-import { StructuresPanel } from './StructuresPanel';
 import { PrestigePanel } from './PrestigePanel';
 import { AchievementNotification } from './AchievementNotification';
 import { BioMatterPanel } from './BioMatterPanel';
@@ -99,24 +98,23 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
           </Card>
 
           {/* Controls */}
-          <div className="flex flex-wrap gap-1 md:gap-2 pointer-events-auto justify-end">
+          <div className="flex flex-wrap gap-1 md:gap-2 pointer-events-auto justify-end items-center">
             <Button
               onClick={() => setShowBioMatterPanel(!showBioMatterPanel)}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-green-400 pointer-events-auto h-8 w-8 md:h-10 md:w-10 p-0"
+              className="text-white hover:text-green-400 pointer-events-auto h-8 w-8 md:h-10 md:w-10 p-0 flex-shrink-0"
               title="BioMatter Synthesis"
             >
               <Leaf size={16} className="md:w-5 md:h-5" />
             </Button>
             <PrestigePanel />
-            <StructuresPanel />
             <AchievementsPanel />
             <Button
               onClick={toggleMute}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-cyan-400 pointer-events-auto h-8 w-8 md:h-10 md:w-10 p-0"
+              className="text-white hover:text-cyan-400 pointer-events-auto h-8 w-8 md:h-10 md:w-10 p-0 flex-shrink-0"
             >
               {isMuted ? <VolumeX size={16} className="md:w-5 md:h-5" /> : <Volume2 size={16} className="md:w-5 md:h-5" />}
             </Button>
