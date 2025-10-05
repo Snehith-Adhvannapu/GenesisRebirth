@@ -3,6 +3,7 @@ import { subscribeWithSelector } from 'zustand/middleware';
 import { saveGameData } from '../saveSystem';
 import { getUpgradeClickCost, getUpgradeGeneratorCost, calculateEnergyPerSecond, calculateEnergyPerClick } from '../gameLogic';
 import { useAchievements } from './useAchievements';
+import { useUnlocks } from './useUnlocks';
 
 interface GameState {
   // Core game state
@@ -78,9 +79,15 @@ export const useGameState = create<GameState>()(
         if (generationInterval) clearInterval(generationInterval);
         generationInterval = setInterval(() => {
           const state = get();
-          if (state.energyPerSecond > 0) {
-            set({ energy: state.energy + state.energyPerSecond });
+          const structureProduction = useUnlocks.getState().getTotalProduction();
+          const totalPerSecond = state.energyPerSecond + structureProduction;
+          
+          if (totalPerSecond > 0) {
+            set({ energy: state.energy + totalPerSecond });
           }
+          
+          // Check for phase unlocks
+          useUnlocks.getState().checkPhaseUnlock(state.energy);
         }, 1000); // Generate every second
       },
 

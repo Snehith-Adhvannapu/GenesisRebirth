@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { EnergyOrb } from './EnergyOrb';
 import { UpgradePanel } from './UpgradePanel';
 import { AchievementsPanel } from './AchievementsPanel';
+import { StructuresPanel } from './StructuresPanel';
 import { AchievementNotification } from './AchievementNotification';
 import { useGameState } from '../../lib/stores/useGameState';
 import { useAudio } from '../../lib/stores/useAudio';
 import { useAchievements, Achievement } from '../../lib/stores/useAchievements';
+import { useUnlocks } from '../../lib/stores/useUnlocks';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Volume2, VolumeX } from 'lucide-react';
@@ -14,8 +16,12 @@ export const GameUI: React.FC = () => {
   const { energy, energyPerSecond } = useGameState();
   const { isMuted, toggleMute } = useAudio();
   const { unlockedIds } = useAchievements();
+  const { getTotalProduction } = useUnlocks();
   const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
+  
+  const structureProduction = getTotalProduction();
+  const totalPerSecond = energyPerSecond + structureProduction;
 
   // Track new achievements
   useEffect(() => {
@@ -71,9 +77,9 @@ export const GameUI: React.FC = () => {
                 {formatNumber(energy)}
               </div>
               <div className="text-sm text-cyan-300">Genesis Energy</div>
-              {energyPerSecond > 0 && (
+              {totalPerSecond > 0 && (
                 <div className="text-xs text-green-400 mt-1">
-                  +{formatNumber(energyPerSecond)}/sec
+                  +{formatNumber(totalPerSecond)}/sec
                 </div>
               )}
             </div>
@@ -81,6 +87,7 @@ export const GameUI: React.FC = () => {
 
           {/* Controls */}
           <div className="flex space-x-2">
+            <StructuresPanel />
             <AchievementsPanel />
             <Button
               onClick={toggleMute}
