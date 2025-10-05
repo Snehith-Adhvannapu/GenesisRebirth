@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { saveGameData } from '../saveSystem';
 import { getUpgradeClickCost, getUpgradeGeneratorCost, calculateEnergyPerSecond, calculateEnergyPerClick } from '../gameLogic';
+import { useAchievements } from './useAchievements';
 
 interface GameState {
   // Core game state
@@ -85,15 +86,22 @@ export const useGameState = create<GameState>()(
 
       generateEnergy: () => {
         const { energyPerClick } = get();
+        const multiplier = useAchievements.getState().getActiveMultiplier();
         set(state => ({
-          energy: state.energy + energyPerClick
+          energy: state.energy + (energyPerClick * multiplier)
         }));
+        
+        // Check achievements
+        useAchievements.getState().checkAchievements(get());
       },
 
       addEnergy: (amount) => {
         set(state => ({
           energy: state.energy + amount
         }));
+        
+        // Check achievements
+        useAchievements.getState().checkAchievements(get());
       },
 
       upgradeClick: () => {
@@ -107,6 +115,9 @@ export const useGameState = create<GameState>()(
             clickUpgradeLevel: newLevel,
             energyPerClick: calculateEnergyPerClick(newLevel)
           });
+          
+          // Check achievements
+          useAchievements.getState().checkAchievements(get());
         }
       },
 
@@ -121,6 +132,9 @@ export const useGameState = create<GameState>()(
             generatorUpgradeLevel: newLevel,
             energyPerSecond: calculateEnergyPerSecond(newLevel)
           });
+          
+          // Check achievements
+          useAchievements.getState().checkAchievements(get());
         }
       },
 

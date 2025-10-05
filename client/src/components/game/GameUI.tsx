@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { EnergyOrb } from './EnergyOrb';
 import { UpgradePanel } from './UpgradePanel';
+import { AchievementsPanel } from './AchievementsPanel';
+import { AchievementNotification } from './AchievementNotification';
 import { useGameState } from '../../lib/stores/useGameState';
 import { useAudio } from '../../lib/stores/useAudio';
+import { useAchievements, Achievement } from '../../lib/stores/useAchievements';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Volume2, VolumeX } from 'lucide-react';
@@ -10,6 +13,43 @@ import { Volume2, VolumeX } from 'lucide-react';
 export const GameUI: React.FC = () => {
   const { energy, energyPerSecond } = useGameState();
   const { isMuted, toggleMute } = useAudio();
+  const { unlockedIds } = useAchievements();
+  const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
+  const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
+
+  // Track new achievements
+  useEffect(() => {
+    const checkForNewAchievements = useAchievements.subscribe(
+      state => state.unlockedIds,
+      (newUnlockedIds, prevUnlockedIds) => {
+        const newIds = newUnlockedIds.filter(id => !prevUnlockedIds.includes(id));
+        if (newIds.length > 0) {
+          const achievements = useAchievements.getState().achievements;
+          const newAchievements = newIds.map(id => 
+            achievements.find(a => a.id === id)
+          ).filter(Boolean) as Achievement[];
+          
+          setAchievementQueue(prev => [...prev, ...newAchievements]);
+        }
+      }
+    );
+
+    return () => checkForNewAchievements();
+  }, []);
+
+  // Display achievements from queue
+  useEffect(() => {
+    if (!currentAchievement && achievementQueue.length > 0) {
+      const [next, ...rest] = achievementQueue;
+      setCurrentAchievement(next);
+      setAchievementQueue(rest);
+      
+      // Apply bonus energy if applicable
+      if (next.reward.type === 'bonus_energy') {
+        useGameState.getState().addEnergy(next.reward.value);
+      }
+    }
+  }, [achievementQueue, currentAchievement]);
 
   const formatNumber = (num: number): string => {
     if (num >= 1e12) return `${(num / 1e12).toFixed(2)}T`;
@@ -39,15 +79,18 @@ export const GameUI: React.FC = () => {
             </div>
           </Card>
 
-          {/* Sound Toggle */}
-          <Button
-            onClick={toggleMute}
-            variant="ghost"
-            size="sm"
-            className="text-white hover:text-cyan-400"
-          >
-            {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-          </Button>
+          {/* Controls */}
+          <div className="flex space-x-2">
+            <AchievementsPanel />
+            <Button
+              onClick={toggleMute}
+              variant="ghost"
+              size="sm"
+              className="text-white hover:text-cyan-400"
+            >
+              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -60,6 +103,14 @@ export const GameUI: React.FC = () => {
       <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
         <UpgradePanel />
       </div>
+
+      {/* Achievement Notifications */}
+      {currentAchievement && (
+        <AchievementNotification
+          achievement={currentAchievement}
+          onClose={() => setCurrentAchievement(null)}
+        />
+      )}
     </div>
   );
 };
