@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { setMapProductionGetter } from './useGameState';
 
-export type TileType = 'barren' | 'water' | 'mountain' | 'crater' | 'green' | 'forest';
+export type TileType = 'barren' | 'water' | 'mountain' | 'crater' | 'green' | 'forest' | 'volcano' | 'crystalFields' | 'desertPlains';
 export type StructureType = 'terraformer' | 'biofactory' | 'extractor' | 'research';
 
 export interface Tile {
@@ -12,6 +12,7 @@ export interface Tile {
   structure: StructureType | null;
   isUnlocked: boolean;
   isDiscovered: boolean;
+  bonusMultiplier?: number; // Adjacency bonus multiplier
 }
 
 export interface Structure {
@@ -40,8 +41,13 @@ interface MapState {
   unlockTiles: (bioMatter: number) => void;
   evolveTile: (q: number, r: number, newType: TileType) => void;
   getAdjacentTiles: (q: number, r: number) => Tile[];
-  getTotalProduction: () => { energy: number; bioMatter: number };
+  calculateAdjacencyBonus: (tile: Tile, structure: StructureType) => number;
+  getTotalProduction: () => { energy: number; bioMatter: number; minerals: number; rareCrystals: number };
   canAffordStructure: (structure: StructureType, energy: number, bioMatter: number) => boolean;
+  getExpansionCost: () => { energy: number; bioMatter: number; minerals: number };
+  expandTerritory: () => boolean;
+  getUnlockedTilesCount: () => number;
+  canExpandTerritory: () => boolean;
 }
 
 // Hex coordinate helpers
@@ -122,7 +128,7 @@ export const useMap = create<MapState>()(
       }
       
       const tiles = new Map<string, Tile>();
-      const gridSize = 10; // 10x10 square grid
+      const gridSize = 20; // 20x20 square grid (expanded from 10x10)
       
       // Create square grid
       for (let x = 0; x < gridSize; x++) {
@@ -137,9 +143,14 @@ export const useMap = create<MapState>()(
           const random = Math.abs(x * 7 + y * 13) % 100; // Deterministic "random"
           
           if (distance > 2) {
-            if (random < 15) type = 'water';
-            else if (random < 30) type = 'mountain';
-            else if (random < 40) type = 'crater';
+            if (random < 12) type = 'water';
+            else if (random < 22) type = 'mountain';
+            else if (random < 32) type = 'crater';
+            else if (random < 37) type = 'volcano'; // High energy/resource yield
+            else if (random < 42) type = 'crystalFields'; // Rare resource bonus
+            else if (random < 52) type = 'desertPlains'; // Low yield but strategic
+            else if (random < 60) type = 'green';
+            else if (random < 68) type = 'forest';
           }
           
           tiles.set(tileKey(x, y), {
@@ -183,12 +194,16 @@ export const useMap = create<MapState>()(
       if (!structure.placementRules(tile, tiles)) {
         return false;
       }
+
+      // Calculate adjacency bonus for this placement
+      const bonusMultiplier = get().calculateAdjacencyBonus(tile, structureType);
       
-      // Place the structure
+      // Place the structure with bonus
       const newTiles = new Map(tiles);
       newTiles.set(tileKey(q, r), {
         ...tile,
-        structure: structureType
+        structure: structureType,
+        bonusMultiplier
       });
       
       set({ tiles: newTiles, selectedStructure: null });
@@ -249,22 +264,78 @@ export const useMap = create<MapState>()(
       return adjacent;
     },
 
+    calculateAdjacencyBonus: (tile, structureType) => {
+      const adjacentTiles = get().getAdjacentTiles(tile.q, tile.r);
+      let bonusMultiplier = 1.0;
+
+      // Extractor bonuses
+      if (structureType === 'extractor') {
+        // Bonus near volcano (high energy yield)
+        const hasVolcanoNearby = adjacentTiles.some(t => t.type === 'volcano');
+        if (hasVolcanoNearby) bonusMultiplier += 0.5;
+
+        // Bonus on desert plains (strategic location)
+        if (tile.type === 'desertPlains') bonusMultiplier += 0.2;
+      }
+
+      // Biofactory bonuses
+      if (structureType === 'biofactory') {
+        // Bonus near forests and water
+        const hasForestNearby = adjacentTiles.some(t => t.type === 'forest');
+        const hasWaterNearby = adjacentTiles.some(t => t.type === 'water');
+        if (hasForestNearby && hasWaterNearby) bonusMultiplier += 0.6;
+        else if (hasWaterNearby) bonusMultiplier += 0.3;
+      }
+
+      // Research hub bonuses
+      if (structureType === 'research') {
+        // Bonus near crystal fields (rare resource areas)
+        const hasCrystalFieldsNearby = adjacentTiles.some(t => t.type === 'crystalFields');
+        if (hasCrystalFieldsNearby) bonusMultiplier += 0.4;
+      }
+
+      // Terraformer bonuses
+      if (structureType === 'terraformer') {
+        // Bonus on green tiles
+        if (tile.type === 'green') bonusMultiplier += 0.3;
+      }
+
+      return bonusMultiplier;
+    },
+
     getTotalProduction: () => {
       const { tiles, structures } = get();
       let energy = 0;
       let bioMatter = 0;
+      let minerals = 0;
+      let rareCrystals = 0;
       
       tiles.forEach(tile => {
         if (tile.structure) {
           const structure = structures[tile.structure];
           if (structure) {
-            energy += structure.productionPerSecond.energy || 0;
-            bioMatter += structure.productionPerSecond.bioMatter || 0;
+            const bonus = tile.bonusMultiplier || 1.0;
+            energy += (structure.productionPerSecond.energy || 0) * bonus;
+            bioMatter += (structure.productionPerSecond.bioMatter || 0) * bonus;
+
+            // Special terrain production bonuses
+            // Volcanoes produce minerals when extractors are placed
+            if (tile.structure === 'extractor' && tile.type === 'volcano') {
+              minerals += 2 * bonus;
+            }
+            // Crystal fields produce rare crystals when research hubs are placed
+            if (tile.structure === 'research' && tile.type === 'crystalFields') {
+              rareCrystals += 1 * bonus;
+            }
+            // Mountains produce minerals
+            if (tile.structure === 'extractor' && tile.type === 'mountain') {
+              minerals += 1 * bonus;
+            }
           }
         }
       });
       
-      return { energy, bioMatter };
+      return { energy, bioMatter, minerals, rareCrystals };
     },
 
     canAffordStructure: (structureType, energy, bioMatter) => {
@@ -273,6 +344,99 @@ export const useMap = create<MapState>()(
       if (!structure) return false;
       
       return energy >= structure.energyCost && bioMatter >= structure.bioMatterCost;
+    },
+
+    getUnlockedTilesCount: () => {
+      const { tiles } = get();
+      let count = 0;
+      tiles.forEach(tile => {
+        if (tile.isUnlocked) count++;
+      });
+      return count;
+    },
+
+    getExpansionCost: () => {
+      const unlockedCount = get().getUnlockedTilesCount();
+      // Cost increases with each expansion
+      const expansionLevel = Math.floor(unlockedCount / 25); // 25 tiles per level
+      
+      return {
+        energy: Math.floor(500 * Math.pow(1.5, expansionLevel)),
+        bioMatter: Math.floor(100 * Math.pow(1.3, expansionLevel)),
+        minerals: Math.floor(50 * Math.pow(1.4, expansionLevel))
+      };
+    },
+
+    canExpandTerritory: () => {
+      const { tiles } = get();
+      const gridSize = 20;
+      const centerX = Math.floor(gridSize / 2);
+      const centerY = Math.floor(gridSize / 2);
+      
+      // Find the current unlock radius
+      let currentMaxDistance = 0;
+      tiles.forEach(tile => {
+        if (tile.isUnlocked) {
+          const distance = Math.abs(tile.q - centerX) + Math.abs(tile.r - centerY);
+          currentMaxDistance = Math.max(currentMaxDistance, distance);
+        }
+      });
+      
+      // Check if there are any locked tiles in the next ring
+      const newUnlockRadius = currentMaxDistance + 1;
+      let hasLockedTilesInNextRing = false;
+      
+      tiles.forEach(tile => {
+        const distance = Math.abs(tile.q - centerX) + Math.abs(tile.r - centerY);
+        if (distance === newUnlockRadius && !tile.isUnlocked) {
+          hasLockedTilesInNextRing = true;
+        }
+      });
+      
+      return hasLockedTilesInNextRing;
+    },
+
+    expandTerritory: () => {
+      const { tiles } = get();
+      
+      // Check if expansion is possible
+      if (!get().canExpandTerritory()) {
+        return false;
+      }
+      
+      const newTiles = new Map(tiles);
+      let unlocked = false;
+      
+      const gridSize = 20;
+      const centerX = Math.floor(gridSize / 2);
+      const centerY = Math.floor(gridSize / 2);
+      
+      // Find the current unlock radius
+      let currentMaxDistance = 0;
+      tiles.forEach(tile => {
+        if (tile.isUnlocked) {
+          const distance = Math.abs(tile.q - centerX) + Math.abs(tile.r - centerY);
+          currentMaxDistance = Math.max(currentMaxDistance, distance);
+        }
+      });
+      
+      // Unlock the next ring of tiles
+      const newUnlockRadius = currentMaxDistance + 1;
+      
+      newTiles.forEach((tile, key) => {
+        const distance = Math.abs(tile.q - centerX) + Math.abs(tile.r - centerY);
+        if (distance === newUnlockRadius && !tile.isUnlocked) {
+          newTiles.set(key, { ...tile, isUnlocked: true, isDiscovered: true });
+          unlocked = true;
+        }
+      });
+      
+      if (unlocked) {
+        set({ tiles: newTiles });
+        return true;
+      }
+      
+      return false;
     }
     };
   })

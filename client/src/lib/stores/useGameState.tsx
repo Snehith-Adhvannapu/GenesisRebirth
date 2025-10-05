@@ -9,11 +9,11 @@ import { useDiscoveryLogs } from './useDiscoveryLogs';
 import { useAudio } from './useAudio';
 
 // Lazy import function to avoid circular dependency
-let _getMapProduction: (() => { energy: number; bioMatter: number }) | null = null;
-export const setMapProductionGetter = (getter: () => { energy: number; bioMatter: number }) => {
+let _getMapProduction: (() => { energy: number; bioMatter: number; minerals: number; rareCrystals: number }) | null = null;
+export const setMapProductionGetter = (getter: () => { energy: number; bioMatter: number; minerals: number; rareCrystals: number }) => {
   _getMapProduction = getter;
 };
-const getMapProduction = () => _getMapProduction?.() || { energy: 0, bioMatter: 0 };
+const getMapProduction = () => _getMapProduction?.() || { energy: 0, bioMatter: 0, minerals: 0, rareCrystals: 0 };
 
 interface GameState {
   // Core game state
@@ -30,12 +30,23 @@ interface GameState {
   bioMatterPerSecond: number;
   terraformerCount: number;
 
+  // Update 3 - Territory Expansion
+  minerals: number;
+  mineralsPerSecond: number;
+  rareCrystals: number;
+  rareCrystalsPerSecond: number;
+  unlockedTiles: number;
+
   // Actions
   initializeGame: (savedData?: any) => void;
   generateEnergy: () => void;
   addEnergy: (amount: number) => void;
   spendEnergy: (amount: number) => boolean;
   spendBioMatter: (amount: number) => boolean;
+  spendMinerals: (amount: number) => boolean;
+  spendRareCrystals: (amount: number) => boolean;
+  addMinerals: (amount: number) => void;
+  addRareCrystals: (amount: number) => void;
   upgradeClick: () => void;
   upgradeGenerator: () => void;
   setIsGenerating: (generating: boolean) => void;
@@ -68,6 +79,13 @@ export const useGameState = create<GameState>()(
       bioMatterPerSecond: 0,
       terraformerCount: 0,
 
+      // Update 3 initial state
+      minerals: 0,
+      mineralsPerSecond: 0,
+      rareCrystals: 0,
+      rareCrystalsPerSecond: 0,
+      unlockedTiles: 25,
+
       initializeGame: (savedData) => {
         if (savedData) {
           set({
@@ -79,6 +97,9 @@ export const useGameState = create<GameState>()(
             bioMatter: savedData.bioMatter || 0,
             terraformerCount: savedData.terraformerCount || 0,
             bioMatterPerSecond: calculateBioMatterPerSecond(savedData.terraformerCount || 0),
+            minerals: savedData.minerals || 0,
+            rareCrystals: savedData.rareCrystals || 0,
+            unlockedTiles: savedData.unlockedTiles || 25,
             gameStarted: true
           });
           
@@ -94,6 +115,9 @@ export const useGameState = create<GameState>()(
             bioMatter: 0,
             terraformerCount: 0,
             bioMatterPerSecond: 0,
+            minerals: 0,
+            rareCrystals: 0,
+            unlockedTiles: 25,
             gameStarted: true
           });
         }
@@ -108,6 +132,9 @@ export const useGameState = create<GameState>()(
             generatorUpgradeLevel: state.generatorUpgradeLevel,
             bioMatter: state.bioMatter,
             terraformerCount: state.terraformerCount,
+            minerals: state.minerals,
+            rareCrystals: state.rareCrystals,
+            unlockedTiles: state.unlockedTiles,
             discoveredLogs: useDiscoveryLogs.getState().discoveredIds,
             timestamp: Date.now()
           });
@@ -142,6 +169,18 @@ export const useGameState = create<GameState>()(
             
             // Update audio ambience
             useAudio.getState().updateAmbience(newBioMatter);
+          }
+
+          // Minerals production from Map structures
+          const totalMineralsPerSecond = mapProduction.minerals || 0;
+          if (totalMineralsPerSecond > 0) {
+            set({ minerals: state.minerals + totalMineralsPerSecond, mineralsPerSecond: totalMineralsPerSecond });
+          }
+
+          // Rare Crystals production from Map structures
+          const totalRareCrystalsPerSecond = mapProduction.rareCrystals || 0;
+          if (totalRareCrystalsPerSecond > 0) {
+            set({ rareCrystals: state.rareCrystals + totalRareCrystalsPerSecond, rareCrystalsPerSecond: totalRareCrystalsPerSecond });
           }
           
           // Check for phase unlocks
@@ -267,6 +306,36 @@ export const useGameState = create<GameState>()(
           // Check achievements
           useAchievements.getState().checkAchievements(get());
         }
+      },
+
+      spendMinerals: (amount) => {
+        const state = get();
+        if (state.minerals >= amount && amount >= 0) {
+          set({ minerals: state.minerals - amount });
+          return true;
+        }
+        return false;
+      },
+
+      spendRareCrystals: (amount) => {
+        const state = get();
+        if (state.rareCrystals >= amount && amount >= 0) {
+          set({ rareCrystals: state.rareCrystals - amount });
+          return true;
+        }
+        return false;
+      },
+
+      addMinerals: (amount) => {
+        set(state => ({
+          minerals: state.minerals + amount
+        }));
+      },
+
+      addRareCrystals: (amount) => {
+        set(state => ({
+          rareCrystals: state.rareCrystals + amount
+        }));
       }
     };
   })

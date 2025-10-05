@@ -9,6 +9,9 @@ interface SaveData {
   bioMatter?: number;
   terraformerCount?: number;
   discoveredLogs?: string[];
+  minerals?: number;
+  rareCrystals?: number;
+  unlockedTiles?: number;
 }
 
 const SAVE_KEY = 'genesis_factory_save';

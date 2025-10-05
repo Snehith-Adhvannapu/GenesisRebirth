@@ -5,6 +5,7 @@ import { AchievementsPanel } from './AchievementsPanel';
 import { PrestigePanel } from './PrestigePanel';
 import { AchievementNotification } from './AchievementNotification';
 import { BioMatterPanel } from './BioMatterPanel';
+import { TerritoryPanel } from './TerritoryPanel';
 import { DiscoveryLogModal } from './DiscoveryLogModal';
 import { Update2EndingModal } from './Update2EndingModal';
 import { useGameState } from '../../lib/stores/useGameState';
@@ -13,20 +14,21 @@ import { useAchievements, Achievement } from '../../lib/stores/useAchievements';
 import { useUnlocks } from '../../lib/stores/useUnlocks';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
-import { Volume2, VolumeX, Leaf } from 'lucide-react';
+import { Volume2, VolumeX, Leaf, Map } from 'lucide-react';
 
 interface GameUIProps {
   viewMode?: 'energy' | 'map';
 }
 
 export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
-  const { energy, energyPerSecond, bioMatter } = useGameState();
+  const { energy, energyPerSecond, bioMatter, minerals, rareCrystals } = useGameState();
   const { isMuted, toggleMute } = useAudio();
   const { unlockedIds } = useAchievements();
   const { getTotalProduction } = useUnlocks();
   const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
   const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
   const [showBioMatterPanel, setShowBioMatterPanel] = useState(false);
+  const [showTerritoryPanel, setShowTerritoryPanel] = useState(false);
   
   const structureProduction = getTotalProduction();
   const totalPerSecond = energyPerSecond + structureProduction;
@@ -108,6 +110,15 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
             >
               <Leaf size={16} className="md:w-5 md:h-5" />
             </Button>
+            <Button
+              onClick={() => setShowTerritoryPanel(!showTerritoryPanel)}
+              variant="ghost"
+              size="sm"
+              className="text-white hover:text-amber-400 pointer-events-auto h-8 w-8 md:h-10 md:w-10 p-0 flex-shrink-0"
+              title="Territory Management"
+            >
+              <Map size={16} className="md:w-5 md:h-5" />
+            </Button>
             <PrestigePanel />
             <AchievementsPanel />
             <Button
@@ -147,6 +158,21 @@ export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
             variant="ghost"
             size="sm"
             className="absolute top-2 right-6 text-white hover:text-red-400"
+          >
+            ✕
+          </Button>
+        </div>
+      )}
+
+      {/* Territory Panel */}
+      {showTerritoryPanel && (
+        <div className="absolute top-20 right-4 pointer-events-auto z-10 w-full max-w-sm">
+          <TerritoryPanel />
+          <Button
+            onClick={() => setShowTerritoryPanel(false)}
+            variant="ghost"
+            size="sm"
+            className="absolute top-2 right-2 text-white hover:text-red-400"
           >
             ✕
           </Button>
