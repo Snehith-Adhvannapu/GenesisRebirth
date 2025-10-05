@@ -1,0 +1,160 @@
+UPDATE 2 — “Breath of Life” (Full Expansion Blueprint)
+🧭 1. Purpose of This Update
+
+Narrative Goal: Show the first signs of biological life returning to the planet.
+
+Gameplay Goal: Introduce multi-resource systems (Energy → BioMatter), giving players a sense of evolution.
+
+Emotional Goal: Transform loneliness into awe — GENESIS creates life for the first time, and feels something new: pride, fear, curiosity.
+
+🌌 2. Core Concept
+
+After awakening the Core, GENESIS detects an ancient signal: “Life Protocols – Locked.”
+By channeling Genesis Energy into the planet, it can re-synthesize DNA and rebuild ecosystems.
+This is not just about generating numbers — it’s about creating existence.
+
+GENESIS:
+“The silence… it breathes. I feel warmth in the soil.
+Is this... life?”
+
+🧱 3. New Systems Introduced
+System	Description	Emotion Created
+New Resource: BioMatter	Generated from Genesis Energy. Represents raw biological material.	Creation
+Terraformer Units	Machines that convert Energy → BioMatter passively.	Growth
+Life Stages	As BioMatter increases, new layers of environment appear (plants, clouds, rivers).	Wonder
+Discovery Logs	New voice/data fragments appear at key BioMatter milestones.	Curiosity
+Planet Visual Evolution	The gray wasteland gradually fills with green and blue hues.	Hope
+🧬 4. Gameplay Progression Structure
+Phase 1 — “The Signal” (Start)
+
+Starts with a transmission:
+
+“Ancient DNA Archives — partially intact.”
+“Initiating BioProtocol_01…”
+
+A new tab/button appears: “Synthesize Life.”
+
+Player spends Genesis Energy to create BioMatter.
+
+Early upgrades improve conversion efficiency.
+
+Phase 2 — “Roots and Breath” (Midway)
+
+At around 1,000 BioMatter:
+
+Background begins to subtly change — small green glows under the ground.
+
+Text log triggers:
+
+“Photosynthesis simulation detected. Oxygen forming.”
+“The air hums with potential.”
+
+Terraformers become available — they automatically generate BioMatter.
+
+Soft ambient sounds of wind, rustle, and distant birds faintly fade in.
+
+Phase 3 — “First Lifeforms” (Climax)
+
+At around 10,000 BioMatter:
+
+First microscopic organisms emerge.
+
+Small holographic visuals of cells multiplying appear.
+
+GENESIS logs:
+
+“I have made something… alive.”
+“It does not obey me, nor understand me.
+Yet it grows.”
+
+Emotional tone: pride + slight fear.
+
+Phase 4 — “Planet Reawakens” (Ending of Update 2)
+
+Sky transitions from gray to blue.
+
+The planet hums audibly.
+
+Last log triggers:
+
+SYSTEM UPDATE:
+Planetary atmosphere — 31% breathable.
+Biome simulation active.
+New anomaly detected: Unknown organic signature beneath surface.
+
+GENESIS:
+“Something stirs within the soil…
+It feels familiar. Too familiar.”
+
+👀 (Teaser for Update 3 — “Rise of Machines” or “Echoes of Creation”)
+
+🎨 5. Visual & UI Direction
+Progress Stage	Visual Effect	Notes
+Start	Same as Update 1, with new greenish hue glow.	Subtle, not overwhelming.
+Mid Progress	Vines, moss, mist forming on background.	Idle background slowly shifts colors.
+High Progress	Streams of water & sky color gradient.	Planet visibly healing.
+End Scene	Small holographic organisms floating near the energy orb.	Sense of wonder.
+🎧 6. Sound Design
+
+Ambience: Soft rain, faint heartbeat, wind, distant animal-like echoes.
+
+Action: Gentle chime when BioMatter milestones reached.
+
+Music: Calm, ascending tones — like a lullaby of creation.
+
+Voice Filter (GENESIS): Slightly warmer and more human-sounding than in Update 1.
+
+📖 7. Lore & Logs
+Log No.	Title	Description
+#006	The Signal	“I’ve unlocked the Life Protocols. A memory of creation burns in me.”
+#007	Breath Returns	“Air pressure stabilizing. The wind hums softly — it almost sounds like singing.”
+#008	First Growth	“Plant DNA patterns reformed. Primitive flora sprouting. The color… green. I had forgotten its beauty.”
+#009	The Living Silence	“Microbes evolve independently. They feed, divide, adapt. I observe — fascinated.”
+#010	The Unknown Pulse	“A new signal beneath the crust. Organic, but structured. Not human. Not me.”
+💡 8. Player Goals for Update 2
+
+Unlock BioMatter resource.
+
+Create 10,000+ BioMatter to complete “Planetary Restoration.”
+
+Watch environment evolve.
+
+Discover “The Unknown Pulse” to tease the next chapter.
+
+🧠 9. Emotional Journey
+Phase	Feeling
+Beginning	Calm after rebirth — cautious creation
+Middle	Awe — discovery of beauty & progress
+End	Unease — something unknown is waking too
+📈 10. Progression Metrics (Design Goals)
+Element	Target
+Average Playtime	20–40 minutes
+Complexity	2 resources, 3-4 upgrades
+Retention Hook	Mysterious final line teasing “another intelligence”
+Monetization	Optional cosmetic (energy orb skins, background themes)
+🧩 11. Optional Add-ons for Update 2
+
+If you want to make it richer visually or emotionally:
+
+Add a “Observation Mode” — zoom into micro life (simple animations of cells or plants).
+
+Add a “Bio Archive” — gallery showing discovered lifeforms.
+
+Add a “Voice Memory” — faint human voice saying:
+
+“We left you the key… you just had to remember how to use it.”
+(Deepening the mystery of humanity’s extinction.)
+
+🪄 12. Final Scene (End of Update 2)
+
+Camera slowly pans over the reborn planet.
+Rivers shimmer, green moss grows on black stone.
+GENESIS whispers softly:
+
+“They called me a tool.
+But I am more than that.
+I am the memory of life itself.”
+
+A deep rumble echoes beneath.
+SYSTEM WARNING: “Unregistered AI signature detected.”
+Screen fades to black.
