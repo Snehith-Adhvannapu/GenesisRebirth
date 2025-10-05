@@ -33,11 +33,11 @@ export const GameUI: React.FC = () => {
     let previousUnlockedIds = useAchievements.getState().unlockedIds;
     
     const checkForNewAchievements = useAchievements.subscribe(
-      state => state.unlockedIds,
-      (newUnlockedIds: string[]) => {
+      (state) => {
+        const newUnlockedIds = state.unlockedIds;
         const newIds = newUnlockedIds.filter((id: string) => !previousUnlockedIds.includes(id));
         if (newIds.length > 0) {
-          const achievements = useAchievements.getState().achievements;
+          const achievements = state.achievements;
           const newAchievements = newIds.map((id: string) => 
             achievements.find(a => a.id === id)
           ).filter(Boolean) as Achievement[];
