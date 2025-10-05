@@ -6,6 +6,9 @@ interface SaveData {
   generatorUpgradeLevel: number;
   timestamp: number;
   achievements?: string[];
+  bioMatter?: number;
+  terraformerCount?: number;
+  discoveredLogs?: string[];
 }
 
 const SAVE_KEY = 'genesis_factory_save';

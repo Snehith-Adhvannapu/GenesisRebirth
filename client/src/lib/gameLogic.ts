@@ -35,6 +35,20 @@ export const calculatePrestigeRequirement = (currentEnergy: number): number => {
   return 1000000; // 1 million energy for first prestige
 };
 
+// BioMatter system (Update 2 - Breath of Life)
+export const getEnergyToBioMatterCost = (amount: number = 1): number => {
+  return Math.floor(50 * amount); // 50 energy per BioMatter
+};
+
+export const getTerraformerCost = (currentCount: number): number => {
+  return Math.floor(500 * Math.pow(1.5, currentCount));
+};
+
+export const calculateBioMatterPerSecond = (terraformerCount: number): number => {
+  if (terraformerCount === 0) return 0;
+  return Math.floor(1 * Math.pow(1.2, terraformerCount - 1));
+};
+
 // Achievement system helpers (for future expansion)
 export interface Achievement {
   id: string;

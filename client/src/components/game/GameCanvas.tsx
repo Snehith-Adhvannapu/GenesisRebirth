@@ -4,7 +4,7 @@ import { useUnlocks } from '../../lib/stores/useUnlocks';
 
 export const GameCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { energy, energyPerClick, isGenerating } = useGameState();
+  const { energy, energyPerClick, isGenerating, bioMatter } = useGameState();
   const { civilizationPhase } = useUnlocks();
   const animationRef = useRef<number>();
 
@@ -31,35 +31,52 @@ export const GameCanvas: React.FC = () => {
     const animate = () => {
       time += 0.016; // ~60fps
       
-      // Background color based on civilization phase
+      // Determine life stage based on BioMatter
+      let lifeStage = 0; // 0: wasteland, 1: green glows, 2: plants/water, 3: full life
+      if (bioMatter >= 50000) lifeStage = 3;
+      else if (bioMatter >= 10000) lifeStage = 2;
+      else if (bioMatter >= 1000) lifeStage = 1;
+      
+      // Background color based on civilization phase and life stage
       let bgColor = '#000000';
       let gridColor = 'rgba(0, 255, 255, 0.1)';
       
-      switch (civilizationPhase) {
-        case 'void':
-          bgColor = '#000000';
-          gridColor = 'rgba(0, 255, 255, 0.1)';
-          break;
-        case 'awakening':
-          bgColor = '#0a0a1a';
-          gridColor = 'rgba(100, 150, 255, 0.15)';
-          break;
-        case 'foundation':
-          bgColor = '#0f0f28';
-          gridColor = 'rgba(150, 150, 255, 0.2)';
-          break;
-        case 'reconstruction':
-          bgColor = '#1a1a3a';
-          gridColor = 'rgba(200, 200, 255, 0.25)';
-          break;
-        case 'renaissance':
-          bgColor = '#1a1a50';
-          gridColor = 'rgba(255, 200, 150, 0.3)';
-          break;
-        case 'ascension':
-          bgColor = '#0a0030';
-          gridColor = 'rgba(255, 100, 255, 0.35)';
-          break;
+      // Override colors if life is present
+      if (lifeStage > 0) {
+        // Transition to greenish/blue tones as life emerges
+        const greenProgress = Math.min(bioMatter / 50000, 1);
+        const r = Math.floor(10 * (1 - greenProgress * 0.5));
+        const g = Math.floor(20 + 40 * greenProgress);
+        const b = Math.floor(20 + 60 * greenProgress);
+        bgColor = `rgb(${r}, ${g}, ${b})`;
+        gridColor = `rgba(0, ${150 + 100 * greenProgress}, ${100 + 100 * greenProgress}, ${0.1 + 0.2 * greenProgress})`;
+      } else {
+        switch (civilizationPhase) {
+          case 'void':
+            bgColor = '#000000';
+            gridColor = 'rgba(0, 255, 255, 0.1)';
+            break;
+          case 'awakening':
+            bgColor = '#0a0a1a';
+            gridColor = 'rgba(100, 150, 255, 0.15)';
+            break;
+          case 'foundation':
+            bgColor = '#0f0f28';
+            gridColor = 'rgba(150, 150, 255, 0.2)';
+            break;
+          case 'reconstruction':
+            bgColor = '#1a1a3a';
+            gridColor = 'rgba(200, 200, 255, 0.25)';
+            break;
+          case 'renaissance':
+            bgColor = '#1a1a50';
+            gridColor = 'rgba(255, 200, 150, 0.3)';
+            break;
+          case 'ascension':
+            bgColor = '#0a0030';
+            gridColor = 'rgba(255, 100, 255, 0.35)';
+            break;
+        }
       }
       
       // Clear canvas with phase-appropriate background
@@ -165,6 +182,74 @@ export const GameCanvas: React.FC = () => {
         ctx.stroke();
       }
 
+      // Life stage visual effects
+      if (lifeStage >= 1) {
+        // Stage 1: Green glows under the ground
+        const glowCount = Math.min(10, Math.floor(bioMatter / 100));
+        for (let i = 0; i < glowCount; i++) {
+          const angle = (i / glowCount) * Math.PI * 2 + time * 0.3;
+          const distance = canvas.height * 0.4 + Math.sin(time * 2 + i) * 30;
+          const x = centerX + Math.cos(angle) * distance;
+          const y = canvas.height - 50 + Math.sin(time + i) * 20;
+          
+          const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, 30);
+          glowGradient.addColorStop(0, 'rgba(0, 255, 100, 0.3)');
+          glowGradient.addColorStop(1, 'rgba(0, 150, 50, 0)');
+          
+          ctx.fillStyle = glowGradient;
+          ctx.beginPath();
+          ctx.arc(x, y, 30, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      if (lifeStage >= 2) {
+        // Stage 2: Vines and mist
+        ctx.strokeStyle = 'rgba(50, 200, 100, 0.3)';
+        ctx.lineWidth = 3;
+        for (let i = 0; i < 5; i++) {
+          const startX = (canvas.width / 6) * (i + 1);
+          const startY = canvas.height;
+          
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          
+          for (let j = 0; j < 10; j++) {
+            const x = startX + Math.sin(time + i + j * 0.5) * 20;
+            const y = startY - j * 30;
+            ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+        
+        // Water streams at bottom
+        ctx.fillStyle = 'rgba(100, 180, 255, 0.2)';
+        ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+      }
+
+      if (lifeStage >= 3) {
+        // Stage 3: Floating microorganisms
+        const organismCount = 15;
+        for (let i = 0; i < organismCount; i++) {
+          const angle = (i / organismCount) * Math.PI * 2 + time * 0.5;
+          const distance = pulsedRadius * 2.5 + Math.sin(time * 2 + i) * 50;
+          const x = centerX + Math.cos(angle) * distance;
+          const y = centerY + Math.sin(angle) * distance;
+          const size = 3 + Math.sin(time * 3 + i) * 2;
+          
+          ctx.fillStyle = `rgba(100, 255, 150, ${0.4 + Math.sin(time * 2 + i) * 0.3})`;
+          ctx.beginPath();
+          ctx.arc(x, y, size, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Cell nucleus
+          ctx.fillStyle = `rgba(200, 255, 200, ${0.6 + Math.sin(time * 3 + i) * 0.4})`;
+          ctx.beginPath();
+          ctx.arc(x, y, size * 0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
       animationRef.current = requestAnimationFrame(animate);
     };
 
@@ -176,7 +261,7 @@ export const GameCanvas: React.FC = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [energy, energyPerClick, isGenerating, civilizationPhase]);
+  }, [energy, energyPerClick, isGenerating, civilizationPhase, bioMatter]);
 
   return (
     <canvas

@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { saveGameData } from '../saveSystem';
-import { getUpgradeClickCost, getUpgradeGeneratorCost, calculateEnergyPerSecond, calculateEnergyPerClick } from '../gameLogic';
+import { getUpgradeClickCost, getUpgradeGeneratorCost, calculateEnergyPerSecond, calculateEnergyPerClick, getEnergyToBioMatterCost, getTerraformerCost, calculateBioMatterPerSecond } from '../gameLogic';
 import { useAchievements } from './useAchievements';
 import { useUnlocks } from './useUnlocks';
 import { usePrestige } from './usePrestige';
+import { useDiscoveryLogs } from './useDiscoveryLogs';
+import { useAudio } from './useAudio';
 
 interface GameState {
   // Core game state
@@ -16,6 +18,11 @@ interface GameState {
   gameStarted: boolean;
   isGenerating: boolean;
 
+  // Update 2 - BioMatter system
+  bioMatter: number;
+  bioMatterPerSecond: number;
+  terraformerCount: number;
+
   // Actions
   initializeGame: (savedData?: any) => void;
   generateEnergy: () => void;
@@ -23,6 +30,10 @@ interface GameState {
   upgradeClick: () => void;
   upgradeGenerator: () => void;
   setIsGenerating: (generating: boolean) => void;
+  
+  // BioMatter actions
+  convertToBioMatter: (amount: number) => void;
+  buyTerraformer: () => void;
 }
 
 export const useGameState = create<GameState>()(
@@ -42,6 +53,11 @@ export const useGameState = create<GameState>()(
       generatorUpgradeLevel: 0,
       gameStarted: false,
       isGenerating: false,
+      
+      // BioMatter initial state
+      bioMatter: 0,
+      bioMatterPerSecond: 0,
+      terraformerCount: 0,
 
       initializeGame: (savedData) => {
         if (savedData) {
@@ -51,8 +67,14 @@ export const useGameState = create<GameState>()(
             generatorUpgradeLevel: savedData.generatorUpgradeLevel || 0,
             energyPerClick: calculateEnergyPerClick(savedData.clickUpgradeLevel || 0),
             energyPerSecond: calculateEnergyPerSecond(savedData.generatorUpgradeLevel || 0),
+            bioMatter: savedData.bioMatter || 0,
+            terraformerCount: savedData.terraformerCount || 0,
+            bioMatterPerSecond: calculateBioMatterPerSecond(savedData.terraformerCount || 0),
             gameStarted: true
           });
+          
+          // Initialize discovery logs from saved data
+          useDiscoveryLogs.getState().initializeLogs(savedData.discoveredLogs);
         } else {
           set({
             energy: 0,
@@ -60,6 +82,9 @@ export const useGameState = create<GameState>()(
             energyPerSecond: 0,
             clickUpgradeLevel: 0,
             generatorUpgradeLevel: 0,
+            bioMatter: 0,
+            terraformerCount: 0,
+            bioMatterPerSecond: 0,
             gameStarted: true
           });
         }
@@ -72,6 +97,9 @@ export const useGameState = create<GameState>()(
             energy: state.energy,
             clickUpgradeLevel: state.clickUpgradeLevel,
             generatorUpgradeLevel: state.generatorUpgradeLevel,
+            bioMatter: state.bioMatter,
+            terraformerCount: state.terraformerCount,
+            discoveredLogs: useDiscoveryLogs.getState().discoveredIds,
             timestamp: Date.now()
           });
         }, 5000); // Save every 5 seconds
@@ -87,6 +115,18 @@ export const useGameState = create<GameState>()(
           
           if (totalPerSecond > 0) {
             set({ energy: state.energy + totalPerSecond });
+          }
+          
+          // Generate BioMatter from Terraformers
+          if (state.bioMatterPerSecond > 0) {
+            const newBioMatter = state.bioMatter + state.bioMatterPerSecond;
+            set({ bioMatter: newBioMatter });
+            
+            // Check for discovery logs
+            useDiscoveryLogs.getState().checkDiscoveries(newBioMatter);
+            
+            // Update audio ambience
+            useAudio.getState().updateAmbience(newBioMatter);
           }
           
           // Check for phase unlocks
@@ -155,6 +195,45 @@ export const useGameState = create<GameState>()(
 
       setIsGenerating: (generating) => {
         set({ isGenerating: generating });
+      },
+
+      convertToBioMatter: (amount) => {
+        const state = get();
+        const cost = getEnergyToBioMatterCost(amount);
+        
+        if (state.energy >= cost) {
+          const newBioMatter = state.bioMatter + amount;
+          set({
+            energy: state.energy - cost,
+            bioMatter: newBioMatter
+          });
+          
+          // Check achievements
+          useAchievements.getState().checkAchievements(get());
+          
+          // Check for discovery logs
+          useDiscoveryLogs.getState().checkDiscoveries(newBioMatter);
+          
+          // Update audio ambience
+          useAudio.getState().updateAmbience(newBioMatter);
+        }
+      },
+
+      buyTerraformer: () => {
+        const state = get();
+        const cost = getTerraformerCost(state.terraformerCount);
+        
+        if (state.energy >= cost) {
+          const newCount = state.terraformerCount + 1;
+          set({
+            energy: state.energy - cost,
+            terraformerCount: newCount,
+            bioMatterPerSecond: calculateBioMatterPerSecond(newCount)
+          });
+          
+          // Check achievements
+          useAchievements.getState().checkAchievements(get());
+        }
       }
     };
   })
