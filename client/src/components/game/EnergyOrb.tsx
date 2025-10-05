@@ -78,7 +78,7 @@ export const EnergyOrb: React.FC = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{__html: `
         @keyframes float-up {
           0% {
             opacity: 1;
@@ -89,7 +89,7 @@ export const EnergyOrb: React.FC = () => {
             transform: translateY(-50px) scale(1.2);
           }
         }
-      `}</style>
+      `}} />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { saveGameData } from '../saveSystem';
 import { getUpgradeClickCost, getUpgradeGeneratorCost, calculateEnergyPerSecond, calculateEnergyPerClick } from '../gameLogic';
 import { useAchievements } from './useAchievements';
 import { useUnlocks } from './useUnlocks';
+import { usePrestige } from './usePrestige';
 
 interface GameState {
   // Core game state
@@ -80,7 +81,9 @@ export const useGameState = create<GameState>()(
         generationInterval = setInterval(() => {
           const state = get();
           const structureProduction = useUnlocks.getState().getTotalProduction();
-          const totalPerSecond = state.energyPerSecond + structureProduction;
+          const basePerSecond = state.energyPerSecond + structureProduction;
+          const productionPrestigeMultiplier = usePrestige.getState().productionMultiplier;
+          const totalPerSecond = basePerSecond * productionPrestigeMultiplier;
           
           if (totalPerSecond > 0) {
             set({ energy: state.energy + totalPerSecond });
@@ -93,9 +96,13 @@ export const useGameState = create<GameState>()(
 
       generateEnergy: () => {
         const { energyPerClick } = get();
-        const multiplier = useAchievements.getState().getActiveMultiplier();
+        const achievementMultiplier = useAchievements.getState().getActiveMultiplier();
+        const prestigeMultiplier = usePrestige.getState().energyMultiplier;
+        const clickPrestigeMultiplier = usePrestige.getState().clickMultiplier;
+        const totalMultiplier = achievementMultiplier * prestigeMultiplier * clickPrestigeMultiplier;
+        
         set(state => ({
-          energy: state.energy + (energyPerClick * multiplier)
+          energy: state.energy + (energyPerClick * totalMultiplier)
         }));
         
         // Check achievements
@@ -103,8 +110,9 @@ export const useGameState = create<GameState>()(
       },
 
       addEnergy: (amount) => {
+        const prestigeMultiplier = usePrestige.getState().energyMultiplier;
         set(state => ({
-          energy: state.energy + amount
+          energy: state.energy + (amount * prestigeMultiplier)
         }));
         
         // Check achievements

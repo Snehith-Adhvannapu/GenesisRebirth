@@ -3,6 +3,7 @@ import { EnergyOrb } from './EnergyOrb';
 import { UpgradePanel } from './UpgradePanel';
 import { AchievementsPanel } from './AchievementsPanel';
 import { StructuresPanel } from './StructuresPanel';
+import { PrestigePanel } from './PrestigePanel';
 import { AchievementNotification } from './AchievementNotification';
 import { useGameState } from '../../lib/stores/useGameState';
 import { useAudio } from '../../lib/stores/useAudio';
@@ -25,18 +26,21 @@ export const GameUI: React.FC = () => {
 
   // Track new achievements
   useEffect(() => {
+    let previousUnlockedIds = useAchievements.getState().unlockedIds;
+    
     const checkForNewAchievements = useAchievements.subscribe(
       state => state.unlockedIds,
-      (newUnlockedIds, prevUnlockedIds) => {
-        const newIds = newUnlockedIds.filter(id => !prevUnlockedIds.includes(id));
+      (newUnlockedIds: string[]) => {
+        const newIds = newUnlockedIds.filter((id: string) => !previousUnlockedIds.includes(id));
         if (newIds.length > 0) {
           const achievements = useAchievements.getState().achievements;
-          const newAchievements = newIds.map(id => 
+          const newAchievements = newIds.map((id: string) => 
             achievements.find(a => a.id === id)
           ).filter(Boolean) as Achievement[];
           
           setAchievementQueue(prev => [...prev, ...newAchievements]);
         }
+        previousUnlockedIds = newUnlockedIds;
       }
     );
 
@@ -87,6 +91,7 @@ export const GameUI: React.FC = () => {
 
           {/* Controls */}
           <div className="flex space-x-2">
+            <PrestigePanel />
             <StructuresPanel />
             <AchievementsPanel />
             <Button
