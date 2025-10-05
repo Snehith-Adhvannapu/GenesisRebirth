@@ -16,6 +16,7 @@ interface GameState {
   // Actions
   initializeGame: (savedData?: any) => void;
   generateEnergy: () => void;
+  addEnergy: (amount: number) => void;
   upgradeClick: () => void;
   upgradeGenerator: () => void;
   setIsGenerating: (generating: boolean) => void;
@@ -86,6 +87,12 @@ export const useGameState = create<GameState>()(
         const { energyPerClick } = get();
         set(state => ({
           energy: state.energy + energyPerClick
+        }));
+      },
+
+      addEnergy: (amount) => {
+        set(state => ({
+          energy: state.energy + amount
         }));
       },
 

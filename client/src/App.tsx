@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { GameCanvas } from './components/game/GameCanvas';
 import { GameUI } from './components/game/GameUI';
 import { StoryModal } from './components/game/StoryModal';
+import { OfflineModal } from './components/game/OfflineModal';
 import { useGameState } from './lib/stores/useGameState';
 import { useAudio } from './lib/stores/useAudio';
-import { loadGameData } from './lib/saveSystem';
+import { loadGameData, calculateOfflineProgress } from './lib/saveSystem';
 import "@fontsource/inter";
 
 function App() {
-  const { initializeGame, gameStarted } = useGameState();
+  const { initializeGame, gameStarted, addEnergy } = useGameState();
   const [showStory, setShowStory] = useState(false);
+  const [offlineEarnings, setOfflineEarnings] = useState<{ energy: number; hours: number } | null>(null);
   const { setHitSound, setSuccessSound, setBackgroundMusic } = useAudio();
 
   useEffect(() => {
@@ -27,16 +29,31 @@ function App() {
     // Load saved game data
     const savedData = loadGameData();
     if (savedData) {
+      // Calculate offline earnings
+      const offlineProgress = calculateOfflineProgress(savedData);
+      if (offlineProgress) {
+        setOfflineEarnings({
+          energy: offlineProgress.offlineEarnings,
+          hours: offlineProgress.offlineHours
+        });
+      }
       initializeGame(savedData);
     } else {
       // First time playing, show story
       setShowStory(true);
     }
-  }, [initializeGame, setHitSound, setSuccessSound]);
+  }, [initializeGame, setHitSound, setSuccessSound, setBackgroundMusic, addEnergy]);
 
   const handleStoryComplete = () => {
     setShowStory(false);
     initializeGame();
+  };
+
+  const handleOfflineModalClose = () => {
+    if (offlineEarnings) {
+      addEnergy(offlineEarnings.energy);
+      setOfflineEarnings(null);
+    }
   };
 
   return (
@@ -49,6 +66,15 @@ function App() {
       
       {/* Story Modal */}
       {showStory && <StoryModal onComplete={handleStoryComplete} />}
+      
+      {/* Offline Earnings Modal */}
+      {offlineEarnings && !showStory && (
+        <OfflineModal
+          energy={offlineEarnings.energy}
+          hours={offlineEarnings.hours}
+          onClose={handleOfflineModalClose}
+        />
+      )}
     </div>
   );
 }
