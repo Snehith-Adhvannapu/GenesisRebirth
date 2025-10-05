@@ -1,0 +1,99 @@
+1. Core Idea — Map-Based Structure System
+
+Instead of showing buildings and upgrades in a separate menu, you’ll have an interactive world map where players place structures like Terraformers, Bio Factories, and Energy Extractors.
+As the planet evolves, new zones open up for construction.
+
+Why this works well
+
+Visual immersion → player feels they are building an ecosystem.
+
+More strategic → choosing where to place a building matters.
+
+Keeps players engaged longer → they’ll check how their map evolves.
+
+2. Map Design for Mobile
+
+We need to keep performance light for mobile devices.
+
+Key design choices:
+
+Tile-based map (hexagonal or square grid) — similar to Civ, but simplified.
+
+Low-poly art style with minimal texture resolution.
+
+Dynamic LOD (Level of Detail) — only nearby tiles have high detail, distant tiles are simpler.
+
+Lazy loading — only load map chunks the player interacts with.
+
+Optimized animation layers — keep only essential animations for structures.
+
+Example Map Layout
+
+Starting Area → barren gray wasteland (Update 1 finish point).
+
+Zones unlock gradually → more tiles available after milestones.
+
+Special tile types → mountains (energy boost), rivers (BioMatter boost), craters (rare upgrades).
+
+3. Gameplay Flow
+
+Instead of a simple upgrade list, Update 2 introduces a placement system:
+
+Player Actions
+
+Spend BioMatter & Energy to build structures.
+
+Place structures strategically on map tiles.
+
+Structures generate resources based on location and adjacency bonuses.
+
+Unlock new tile types and structures with progression.
+
+Example Structures
+Structure Name	Effect	Placement Rule
+Terraformer	Generates BioMatter	Must be placed on barren tiles
+Bio Factory	Converts BioMatter to advanced lifeforms	Must be near water tiles
+Energy Extractor	Generates Energy	Must be placed on mountains/craters
+Research Hub	Unlocks upgrades	Anywhere but cost increases with distance from core
+4. UI & Controls
+
+For mobile, controls should be intuitive:
+
+Tap → place structure or open info panel.
+
+Pinch to zoom → see details or overview.
+
+Swipe → move map view.
+
+Simple toolbar at bottom → shows resources, BioMatter, Energy, upgrades.
+
+5. Progression System
+
+Milestone Unlocks → as BioMatter grows, more map tiles unlock and new structures appear.
+
+Visual Evolution → map gradually shifts from gray wasteland → green forests → cities of lifeforms.
+
+Map Events → random events trigger (storms, new species emergence) to keep gameplay dynamic.
+
+6. Optimization Tips for Mobile
+
+Keep map grid size reasonable (e.g., 20×20 tiles max early on).
+
+Use sprite atlases for structure art to reduce draw calls.
+
+Use object pooling for structure animations.
+
+Avoid heavy physics calculations — only simple placement logic.
+
+Preload upcoming tile zones to avoid lag.
+
+7. Emotional Impact
+
+The map-based structure system lets players see their progress physically.
+It gives a sense of "terraforming a world", making Update 2 feel alive.
+When players see their barren planet turn into a thriving ecosystem, they feel ownership and pride.
+
+💡 Idea for storytelling tie-in:
+When a player places a structure, GENESIS can narrate something like:
+
+“Terraformer unit placed. A seed of life planted. The soil will remember this.”
