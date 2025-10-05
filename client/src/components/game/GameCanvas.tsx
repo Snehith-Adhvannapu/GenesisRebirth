@@ -1,9 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import { useGameState } from '../../lib/stores/useGameState';
+import { useUnlocks } from '../../lib/stores/useUnlocks';
 
 export const GameCanvas: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { energy, energyPerClick, isGenerating } = useGameState();
+  const { civilizationPhase } = useUnlocks();
   const animationRef = useRef<number>();
 
   useEffect(() => {
@@ -29,12 +31,43 @@ export const GameCanvas: React.FC = () => {
     const animate = () => {
       time += 0.016; // ~60fps
       
-      // Clear canvas
-      ctx.fillStyle = '#000000';
+      // Background color based on civilization phase
+      let bgColor = '#000000';
+      let gridColor = 'rgba(0, 255, 255, 0.1)';
+      
+      switch (civilizationPhase) {
+        case 'void':
+          bgColor = '#000000';
+          gridColor = 'rgba(0, 255, 255, 0.1)';
+          break;
+        case 'awakening':
+          bgColor = '#0a0a1a';
+          gridColor = 'rgba(100, 150, 255, 0.15)';
+          break;
+        case 'foundation':
+          bgColor = '#0f0f28';
+          gridColor = 'rgba(150, 150, 255, 0.2)';
+          break;
+        case 'reconstruction':
+          bgColor = '#1a1a3a';
+          gridColor = 'rgba(200, 200, 255, 0.25)';
+          break;
+        case 'renaissance':
+          bgColor = '#1a1a50';
+          gridColor = 'rgba(255, 200, 150, 0.3)';
+          break;
+        case 'ascension':
+          bgColor = '#0a0030';
+          gridColor = 'rgba(255, 100, 255, 0.35)';
+          break;
+      }
+      
+      // Clear canvas with phase-appropriate background
+      ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Background grid effect
-      ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+      ctx.strokeStyle = gridColor;
       ctx.lineWidth = 1;
       const gridSize = 50;
       
@@ -143,7 +176,7 @@ export const GameCanvas: React.FC = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [energy, energyPerClick, isGenerating]);
+  }, [energy, energyPerClick, isGenerating, civilizationPhase]);
 
   return (
     <canvas
