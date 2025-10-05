@@ -74,8 +74,8 @@ const HexTile: React.FC<HexTileProps> = ({ tile, onTileClick }) => {
   });
   
   const handleClick = (e: any) => {
-    e.stopPropagation();
     if (tile.isUnlocked) {
+      e.stopPropagation();
       onTileClick(tile.q, tile.r);
     }
   };
@@ -228,7 +228,7 @@ export const MapCanvas: React.FC = () => {
   };
   
   return (
-    <div className="absolute inset-0 w-full h-full">
+    <div className="absolute inset-0 w-full h-full pointer-events-auto" style={{ zIndex: 1 }}>
       <Canvas>
         <PerspectiveCamera makeDefault position={[0, 12, 8]} fov={60} />
         <OrbitControls
@@ -238,6 +238,7 @@ export const MapCanvas: React.FC = () => {
           maxDistance={25}
           maxPolarAngle={Math.PI / 2.2}
           target={[0, 0, 0]}
+          enablePan={true}
         />
         <MapScene onTileClick={handleTileClick} />
       </Canvas>
