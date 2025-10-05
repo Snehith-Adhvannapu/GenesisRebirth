@@ -122,18 +122,19 @@ export const useMap = create<MapState>()(
       }
       
       const tiles = new Map<string, Tile>();
+      const gridSize = 10; // 10x10 square grid
       
-      // Create initial 7x7 hex grid
-      const radius = 3;
-      for (let q = -radius; q <= radius; q++) {
-        const r1 = Math.max(-radius, -q - radius);
-        const r2 = Math.min(radius, -q + radius);
-        for (let r = r1; r <= r2; r++) {
-          const distance = Math.abs(q) + Math.abs(r) + Math.abs(-q - r);
+      // Create square grid
+      for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < gridSize; y++) {
+          // Calculate distance from center for unlock logic
+          const centerX = Math.floor(gridSize / 2);
+          const centerY = Math.floor(gridSize / 2);
+          const distance = Math.abs(x - centerX) + Math.abs(y - centerY);
           
           // Determine tile type based on position
           let type: TileType = 'barren';
-          const random = Math.abs(q * 7 + r * 13) % 100; // Deterministic "random"
+          const random = Math.abs(x * 7 + y * 13) % 100; // Deterministic "random"
           
           if (distance > 2) {
             if (random < 15) type = 'water';
@@ -141,13 +142,13 @@ export const useMap = create<MapState>()(
             else if (random < 40) type = 'crater';
           }
           
-          tiles.set(tileKey(q, r), {
-            q,
-            r,
+          tiles.set(tileKey(x, y), {
+            q: x,
+            r: y,
             type,
             structure: null,
-            isUnlocked: distance <= 1, // Center tiles unlocked
-            isDiscovered: distance <= 1
+            isUnlocked: distance <= 2, // Center 5x5 area unlocked initially
+            isDiscovered: distance <= 2
           });
         }
       }
@@ -199,14 +200,20 @@ export const useMap = create<MapState>()(
       const newTiles = new Map(tiles);
       let unlocked = false;
       
+      const gridSize = 10;
+      const centerX = Math.floor(gridSize / 2);
+      const centerY = Math.floor(gridSize / 2);
+      
       // Unlock tiles based on bioMatter milestones
-      let unlockRadius = 1;
-      if (bioMatter >= 100) unlockRadius = 2;
-      if (bioMatter >= 500) unlockRadius = 3;
-      if (bioMatter >= 2000) unlockRadius = 4;
+      let unlockRadius = 2;
+      if (bioMatter >= 100) unlockRadius = 3;
+      if (bioMatter >= 500) unlockRadius = 4;
+      if (bioMatter >= 1000) unlockRadius = 5;
+      if (bioMatter >= 2000) unlockRadius = 6;
+      if (bioMatter >= 5000) unlockRadius = 10; // Unlock entire map
       
       newTiles.forEach((tile, key) => {
-        const distance = Math.abs(tile.q) + Math.abs(tile.r) + Math.abs(-tile.q - tile.r);
+        const distance = Math.abs(tile.q - centerX) + Math.abs(tile.r - centerY);
         if (distance <= unlockRadius && !tile.isUnlocked) {
           newTiles.set(key, { ...tile, isUnlocked: true, isDiscovered: true });
           unlocked = true;

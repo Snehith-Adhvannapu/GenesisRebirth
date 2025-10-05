@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { GameCanvas } from './components/game/GameCanvas';
-import { MapCanvas } from './components/game/MapCanvas';
+import { MapCanvas2D } from './components/game/MapCanvas2D';
 import { BuildingPanel } from './components/game/BuildingPanel';
 import { GameUI } from './components/game/GameUI';
 import { StoryModal } from './components/game/StoryModal';
@@ -87,7 +87,7 @@ function App() {
   return (
     <div className="w-full h-screen bg-black overflow-hidden relative">
       {/* Game Canvas - Energy Orb Visualization or Map View */}
-      {viewMode === 'energy' ? <GameCanvas /> : <MapCanvas />}
+      {viewMode === 'energy' ? <GameCanvas /> : <MapCanvas2D />}
       
       {/* View Toggle Button */}
       {gameStarted && (

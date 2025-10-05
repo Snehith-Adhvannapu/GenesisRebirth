@@ -1,0 +1,134 @@
+. Map Structure
+a) Map Layout
+
+The map will be tile-based so it’s easy to manage and optimize.
+Two good choices:
+
+Hexagonal grid → feels natural and strategic (like Civ).
+
+Square grid → simpler to implement and lighter on performance.
+
+For mobile, I recommend square grid first for optimization.
+
+Initial map size for Update 2:
+
+Start with 10×10 tiles (100 tiles total).
+
+Expandable in later updates.
+
+Each tile represents a zone of terrain.
+
+b) Tile Types
+
+Different tile types give variety in gameplay and influence building placement.
+
+Tile Type	Effect
+Barren Land	Base tile for Terraformers
+Water	Boosts Bio Factory productivity
+Mountain	Boosts Energy Extractor productivity
+Forest	Natural BioMatter generation
+Crater	Rare boosts; special upgrades unlocked
+
+Tiles unlock gradually to give a sense of exploration.
+
+c) Map Evolution
+
+The map is not static. As the player progresses:
+
+Tiles visually evolve (gray barren → green forests → glowing cities).
+
+New tile types appear.
+
+Terrain changes reflect player progress.
+
+Example:
+When the player reaches a milestone in BioMatter production, they unlock a Forest Zone tile which spawns automatically near existing Bio Factories.
+
+2. Placement System
+a) Structure Placement
+
+Instead of auto-upgrades, players place buildings manually.
+
+Basic rules:
+
+Each structure costs resources (BioMatter, Energy).
+
+Placement consumes the tile space.
+
+Certain structures need specific tile types (example: Bio Factory must be near water).
+
+Adjacency bonuses: placing a building next to another of a certain type gives productivity boosts.
+
+Example:
+
+Placing a Bio Factory next to a Water tile gives +15% BioMatter output.
+
+b) Building Types and Effects
+
+We can start with a few basic ones and expand later:
+
+Structure Name	Function	Placement Restriction
+Terraformer	Turns barren land into fertile ground	Only on barren land
+Bio Factory	Produces BioMatter	Must be near water
+Energy Extractor	Produces Energy	Must be near mountains/craters
+Research Hub	Unlocks upgrades	Anywhere, but costs more if far from the Core Structure
+c) Strategic Placement
+
+Placement is not just cosmetic — it becomes a strategy.
+Example:
+A player might place Bio Factories in clusters near water tiles to maximize output rather than randomly.
+
+3. Gameplay Effects of Placement System
+
+The map + placement system changes idle gameplay:
+
+Adds player agency (they make strategic choices rather than passively clicking).
+
+Creates visual progression → the map becomes a living world.
+
+Introduces meta-strategy → optimizing tile placement becomes a layer of gameplay.
+
+4. UI & UX Flow
+
+UI elements:
+
+Map View → main game view.
+
+Toolbar → shows resources, buildings, upgrades.
+
+Structure Menu → list of buildings with costs, placement requirements.
+
+Tile Info Panel → tap a tile to see type, bonuses, and possible structures.
+
+Controls:
+
+Tap tile → open placement menu or tile info.
+
+Drag to pan map.
+
+Pinch to zoom.
+
+5. Long-Term Progression
+
+Update 2’s placement system is just the start — it should evolve in future updates:
+
+Map expansion → from 10×10 to larger maps.
+
+New terrain types → volcanoes, alien zones.
+
+Special events → meteor showers, earthquakes that change tile types.
+
+“Mega-structures” → buildings that take multiple tiles and give huge boosts.
+
+Example of long-term reward:
+
+“When a player fills a certain percentage of map with structures, the planet evolves into a living biosphere — unlocking a permanent productivity bonus.”
+
+6. Emotional Hook
+
+The placement system should give a sense of terraforming progress.
+A narrative voice (GENESIS or narrator) can comment during placement:
+
+“Terraformer deployed… life stirs in the barren land.”
+“A Bio Factory hums… water flows to sustain life.”
+“Energy Extractor installed… the planet breathes.”
