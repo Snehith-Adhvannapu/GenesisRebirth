@@ -94,12 +94,12 @@ export const GameUI: React.FC = () => {
           </Card>
 
           {/* Controls */}
-          <div className="flex space-x-2">
+          <div className="flex space-x-2 pointer-events-auto">
             <Button
               onClick={() => setShowBioMatterPanel(!showBioMatterPanel)}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-green-400"
+              className="text-white hover:text-green-400 pointer-events-auto"
               title="BioMatter Synthesis"
             >
               <Leaf size={20} />
@@ -111,7 +111,7 @@ export const GameUI: React.FC = () => {
               onClick={toggleMute}
               variant="ghost"
               size="sm"
-              className="text-white hover:text-cyan-400"
+              className="text-white hover:text-cyan-400 pointer-events-auto"
             >
               {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
             </Button>
@@ -120,8 +120,10 @@ export const GameUI: React.FC = () => {
       </div>
 
       {/* Center Energy Orb (Clickable) */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
-        <EnergyOrb />
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="pointer-events-auto">
+          <EnergyOrb />
+        </div>
       </div>
 
       {/* Bottom Upgrade Panel */}
