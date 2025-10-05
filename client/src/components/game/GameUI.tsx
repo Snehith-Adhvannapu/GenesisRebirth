@@ -16,7 +16,11 @@ import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Volume2, VolumeX, Leaf } from 'lucide-react';
 
-export const GameUI: React.FC = () => {
+interface GameUIProps {
+  viewMode?: 'energy' | 'map';
+}
+
+export const GameUI: React.FC<GameUIProps> = ({ viewMode = 'energy' }) => {
   const { energy, energyPerSecond, bioMatter } = useGameState();
   const { isMuted, toggleMute } = useAudio();
   const { unlockedIds } = useAchievements();
@@ -119,17 +123,21 @@ export const GameUI: React.FC = () => {
         </div>
       </div>
 
-      {/* Center Energy Orb (Clickable) */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="pointer-events-auto">
-          <EnergyOrb />
+      {/* Center Energy Orb (Clickable) - Only in Energy View */}
+      {viewMode === 'energy' && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="pointer-events-auto">
+            <EnergyOrb />
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Bottom Upgrade Panel */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto z-10">
-        <UpgradePanel />
-      </div>
+      {/* Bottom Upgrade Panel - Only in Energy View */}
+      {viewMode === 'energy' && (
+        <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto z-10">
+          <UpgradePanel />
+        </div>
+      )}
 
       {/* BioMatter Panel */}
       {showBioMatterPanel && (

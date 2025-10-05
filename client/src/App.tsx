@@ -122,7 +122,7 @@ function App() {
       )}
       
       {/* Game UI Overlay */}
-      {gameStarted && <GameUI />}
+      {gameStarted && <GameUI viewMode={viewMode} />}
       
       {/* Building Panel (only in map view) */}
       {gameStarted && viewMode === 'map' && <BuildingPanel />}
