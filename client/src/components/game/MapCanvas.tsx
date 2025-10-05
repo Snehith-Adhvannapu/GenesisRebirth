@@ -228,7 +228,7 @@ export const MapCanvas: React.FC = () => {
   };
   
   return (
-    <div className="absolute inset-0 w-full h-full pointer-events-auto" style={{ zIndex: 1 }}>
+    <div className="absolute inset-0 w-full h-full pointer-events-auto" style={{ zIndex: 0 }}>
       <Canvas>
         <PerspectiveCamera makeDefault position={[0, 12, 8]} fov={60} />
         <OrbitControls

@@ -91,7 +91,7 @@ function App() {
       
       {/* View Toggle Button */}
       {gameStarted && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 pointer-events-auto" style={{ zIndex: 20 }}>
           <div className="flex gap-2 bg-black/80 border border-cyan-500/30 rounded-lg p-2">
             <Button
               onClick={() => setViewMode('energy')}

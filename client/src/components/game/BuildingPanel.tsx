@@ -8,20 +8,20 @@ import { formatNumber } from '../../lib/utils';
 export const BuildingPanel: React.FC = () => {
   const { structures, selectedStructure, setSelectedStructure, canAffordStructure } = useMap();
   const { energy, bioMatter } = useGameState();
-  
+
   const structureList: StructureType[] = ['terraformer', 'biofactory', 'extractor', 'research'];
-  
+
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-10">
       <Card className="bg-black/90 border-cyan-500/30 p-4">
         <h2 className="text-xl font-bold text-cyan-400 mb-3">Build Structures</h2>
-        
+
         <div className="space-y-2">
           {structureList.map((structureType) => {
             const structure = structures[structureType];
             const isSelected = selectedStructure === structureType;
             const canAfford = canAffordStructure(structureType, energy, bioMatter);
-            
+
             return (
               <Button
                 key={structureType}
@@ -56,7 +56,7 @@ export const BuildingPanel: React.FC = () => {
             );
           })}
         </div>
-        
+
         {selectedStructure && (
           <div className="mt-3 p-2 bg-cyan-900/30 border border-cyan-500/50 rounded text-xs text-cyan-200">
             <p className="font-semibold">📍 Placement Mode Active</p>

@@ -74,9 +74,9 @@ export const GameUI: React.FC = () => {
   };
 
   return (
-    <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
       {/* Top UI Bar */}
-      <div className="absolute top-0 left-0 right-0 p-4 pointer-events-auto">
+      <div className="absolute top-0 left-0 right-0 p-4 pointer-events-auto z-10">
         <div className="flex justify-between items-start">
           {/* Energy Display */}
           <Card className="bg-black/80 border-cyan-500/30 text-white p-4">
@@ -127,7 +127,7 @@ export const GameUI: React.FC = () => {
       </div>
 
       {/* Bottom Upgrade Panel */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
+      <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto z-10">
         <UpgradePanel />
       </div>
 
